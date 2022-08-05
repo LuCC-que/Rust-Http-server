@@ -1,7 +1,8 @@
-use crate::http::Request;
+use crate::http::{response, Request, Response, StatusCode};
 use std::convert::TryFrom;
-use std::io::Read;
+use std::io::{Read, Write};
 use std::net::TcpListener;
+
 pub struct Server {
     addr: String,
 }
@@ -25,7 +26,16 @@ impl Server {
                         Ok(_) => {
                             println!("Received a request: {:?}", String::from_utf8_lossy(&buffer));
                             match Request::try_from(&buffer[..]) {
-                                Ok(request) => {}
+                                Ok(request) => {
+                                    dbg!(request);
+                                    // let response = Response::new(StatusCode::NotFound, None);
+                                    // write!(tcpstream, "HTTP/1.1 404 NOT FOUND\r\n\r\n");
+                                    let response = Response::new(
+                                        StatusCode::Ok,
+                                        Some("<h1> Hello World</h1>".to_string()),
+                                    );
+                                    write!(tcpstream, "{}", response);
+                                }
                                 Err(e) => println!("Faile to convert {}", e),
                             }
                         }
